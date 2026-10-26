@@ -25,6 +25,7 @@ G.Social = (() => {
   const VALID = /^[A-Za-z0-9_ñÑáéíóúÁÉÍÓÚ]{3,16}$/;
   const MAX_PLAYERS = 4;
   const INVITE_TTL = 3 * 60 * 1000;
+  const REINVITE_MS = 20 * 1000;     // volver a invitar al mismo amigo antes de esto no escribe nada
   /*
    * Hora real: la del servidor de la web (cabecera Date de version.json, gratis).
    * Si el reloj del aparato va adelantado (p. ej. la zona horaria mal puesta),
@@ -55,7 +56,7 @@ G.Social = (() => {
   let unFriends = null;
   let beatT = 0, presAt = 0, unInv = null;
   const pres = new Map();           // otherUid -> { online, play, room, seen } (lo último leído)
-  const sentInv = new Set();        // a quién invitaste (para retirarlo al salir)
+  const sentInv = new Map();        // a quién invitaste: uid -> { room, at } (para retirarlo al salir)
   let room = null;                  // { id, host, isHost, members: [{ uid, name, dex, shiny }] }
   let roomRefs = [];
   const invites = new Map();        // fromUid -> { from, name, room, at }
@@ -298,10 +299,20 @@ G.Social = (() => {
   function rtOn() { if (fb.rtdb) fb.rtdb.goOnline(); }
   function rtOff() { if (fb && fb.rtdb && !room) fb.rtdb.goOffline(); }
 
+  /*
+   * Salas con límite (25-10-2026): el 23-10 una cuenta creada fuera del juego
+   * llenó la base de datos con 19.691 salas de basura (100 GB, ~17 $ al día).
+   * Ahora (database.rules.json) cada cuenta tiene UNA sala, que se llama como
+   * ella; el anfitrión sólo puede poner en su sala a quien haya entrado de
+   * verdad (rin/{sala}/{uid}, que sólo escribe cada invitado), y los mensajes
+   * son pequeños y van a huecos fijos (net.js).
+   */
+  const rinRef = (id, u = uid) => fb.rtdb.ref('rin/' + id + '/' + u);
+
   async function createRoom() {
     if (room) return room;
     rtOn();
-    const id = fb.rtdb.ref('rooms').push().key;
+    const id = uid;
     await fb.rtdb.ref('rooms/' + id).set({ host: uid, open: true, at: ts(), m: { [uid]: memberInfo() } });
     enterRoom(id, uid);
     return room;
@@ -318,6 +329,8 @@ G.Social = (() => {
     } catch (e) { /* sala borrada */ }
     if (!host) { rtOff(); return { ok: false, error: 'Esa sala ya no existe.' }; }
     if (open !== true) { rtOff(); return { ok: false, error: 'La partida de esa sala ya ha empezado.' }; }
+    // (Con las reglas de antes de rin no se puede escribir: se sigue igual.)
+    await rinRef(id).set(true).catch(() => {});
     try { await fb.rtdb.ref('rooms/' + id + '/m/' + uid).set(memberInfo()); }
     catch (e) { rtOff(); return { ok: false, error: 'No se pudo entrar en la sala.' }; }
     const n = (await fb.rtdb.ref('rooms/' + id + '/m').get()).numChildren();
@@ -414,6 +427,7 @@ G.Social = (() => {
       } else {
         if (!host) throw Error('sin anfitrión');
         const mine = room.members.find(x => x.uid === uid);
+        await within(rinRef(id).set(true), 5000).catch(() => {});
         // Si no deja, los demás siguen jugando (la sala no admite a nadie hasta que acaben): a esperar.
         await within(base.child('m/' + uid).set(Object.assign(memberInfo(), mine && mine.at ? { at: mine.at } : {})), 5000)
           .catch(e => { throw Object.assign(e, { wait: e.message !== 'timeout' }); });
@@ -472,6 +486,7 @@ G.Social = (() => {
     const ref = r.isHost ? fb.rtdb.ref('rooms/' + r.id) : fb.rtdb.ref('rooms/' + r.id + '/m/' + uid);
     ref.onDisconnect().cancel().catch(() => {});
     await ref.remove().catch(() => {});
+    if (!r.isHost) rinRef(r.id).remove().catch(() => {});
     retractInvites();
     writeStatus();
     rtOff();
@@ -497,17 +512,22 @@ G.Social = (() => {
     if (room && room.members.length >= MAX_PLAYERS) return { ok: false, error: 'La sala está llena.' };
     if (room && !room.isHost) return { ok: false, error: 'Sólo el anfitrión de la sala puede invitar.' };
     if (!room) await createRoom();
+    // Acabas de invitarle a esta sala: ya la tiene (pulsar otra vez no escribe nada; 25-10-2026).
+    const s = sentInv.get(other);
+    if (s && s.room === room.id && now() - s.at < REINVITE_MS) return { ok: true, msg: 'Invitación enviada a ' + f.name };
     try {
       await fb.fs.collection('inv').doc(other + '_' + uid).set({ to: other, from: uid, room: room.id, name: me.name, at: fts() });
     } catch (e) { return { ok: false, error: 'No se pudo invitar (' + (e.code || 'error') + ').' }; }
-    sentInv.add(other);
+    sentInv.set(other, { room: room.id, at: now() });
     return { ok: true, msg: 'Invitación enviada a ' + f.name };
   }
 
   /** Retira las invitaciones que mandaste (al salir de la sala). */
   function retractInvites() {
     if (!fb) return;
-    for (const o of sentInv) fb.fs.collection('inv').doc(o + '_' + uid).delete().catch(() => {});
+    // Sólo las que pueden seguir ahí: las caducadas ya no cuentan, y borrar las que
+    // ya no están (aceptadas o rechazadas) lo rechazaban las reglas (~200 por hora).
+    for (const [o, s] of sentInv) if (now() - s.at < INVITE_TTL) fb.fs.collection('inv').doc(o + '_' + uid).delete().catch(() => {});
     sentInv.clear();
   }
 
@@ -565,7 +585,7 @@ G.Social = (() => {
    */
   function publishProfile(force = false) {
     if (!me || !fb) return;
-    if (!force && Date.now() - pubAt < 2 * 3600 * 1000) return;    // como mucho cada 2 h (era 30 min)
+    if (!force && Date.now() - pubAt < 6 * 3600 * 1000) return;    // como mucho cada 6 h (2 h hasta el 25-10-2026; antes 30 min)
     clearTimeout(pubT);
     pubT = setTimeout(() => {
       if (!me || !fb) return;
