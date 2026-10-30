@@ -1,12 +1,3 @@
-/* ============ sw.js — para poder instalar el juego como app ============
- * - Código del juego (html, js, css): primero la red, así cada actualización
- *   llega al momento; si no hay conexión, la última copia guardada.
- * - Sprites, iconos y fuente: no cambian nunca, se sirven de la caché
- *   (se van guardando según se usan: no se descarga todo de golpe).
- *   Menos los disfraces (assets/pokemon/{dex}/k-*, tools/make_skins.py): esos
- *   se pueden retocar, así que van como el código (primero la red).
- * - Firebase y demás servicios de fuera no se tocan.
- */
 const CODE = 'ps-code-v1', ART = 'ps-art-v1';
 
 self.addEventListener('install', e => {

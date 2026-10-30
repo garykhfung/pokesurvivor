@@ -1,12 +1,3 @@
-/* ============ locales.js — idioma del jugador (antes que nada) ============
- * Lo usan la pantalla de carga (boot.js) y el juego (i18n.js). No guarda nada del jugador.
- * Idioma: el elegido en Ajustes; si no, /en/ en la dirección o el del navegador.
- *
- * Francés, italiano, portugués y chino: aquí mismo se pide su diccionario,
- * js/lang/<idioma>.js (lo genera tools/build.js), antes que el juego, para que
- * cada jugador descargue sólo el suyo. Si no llega, el juego sale en inglés.
- * La huella ?v= de este script (la pone build.js) va también al diccionario.
- */
 window.PS_LOCALES = (() => {
   const choices = [
     ['es', 'Español', 'es-ES'], ['en', 'English', 'en-GB'],

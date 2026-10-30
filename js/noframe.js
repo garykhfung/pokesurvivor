@@ -1,13 +1,3 @@
-/* ============ noframe.js — el juego sólo se juega en su web ============
- * Hay webs que meten pokesurvivor.com dentro de un marco (iframe) y ponen sus
- * anuncios alrededor (pokesurvival.com, 19-10-2026). Si esta página está dentro
- * de un marco de otra web, no arranca el juego (main.js mira PS_FRAMED) y
- * sale un aviso con un botón a la web oficial. Un marco de la misma web sí vale.
- * Va en un archivo aparte (y no dentro del HTML) por la CSP; lo usan el juego
- * (dev.html, index.html, en/) y las páginas de la guía (make_seo_pages.py).
- * Si algún día el juego se publica en un portal que lo mete en un marco
- * (itch.io, CrazyGames...), su dominio va en ALLOW.
- */
 (function () {
   var ALLOW = [];
   if (window.top === window.self) return;

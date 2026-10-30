@@ -133,8 +133,7 @@ descargados una vez y guardados en `js/data/pokedex.js`.
 
 [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans) (SIL Open Font License 1.1,
 licencia en `assets/fonts/OFL.txt`). El juego usa una versión modificada,
-"Pixelify PS", con los números redibujados para distinguirlos mejor
-(`tools/make_font.py`).
+"Pixelify PS", con los números redibujados para distinguirlos mejor.
 
 ## Marca
 

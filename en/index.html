@@ -3,9 +3,6 @@
 <head>
 <meta charset="utf-8">
 <base href="../">
-<!-- Seguridad (18-10-2026): sólo se ejecutan los scripts del juego, de Firebase
-     y de Google (inicio de sesión). Nada metido en la página (onerror=, etiquetas script
-     en un texto...) llega a ejecutarse aunque se colara. Ver js/boot.js. -->
 <meta http-equiv="Content-Security-Policy" content="script-src 'self' file: https://www.gstatic.com https://apis.google.com https://*.firebaseio.com https://*.firebasedatabase.app; object-src 'none'; base-uri 'self'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>PokéSurvivor – Free online Pokémon survival game (Survivor.io style)</title>
@@ -14,7 +11,6 @@
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#0a1430">
 <meta name="color-scheme" content="dark">
-<!-- Compartir en redes (WhatsApp, Discord, Twitter/X...) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="PokéSurvivor">
 <meta property="og:locale" content="en_US">
@@ -31,7 +27,6 @@
 <meta name="twitter:image" content="https://pokesurvivor.com/assets/og-image.jpg">
 <meta name="ps-pages" content="1">
 <link rel="manifest" href="manifest.webmanifest">
-<!-- Google sólo enseña en los resultados iconos de 48 px o múltiplos -->
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/icon-48.png">
 <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96.png">
@@ -44,7 +39,6 @@
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preload" href="assets/fonts/PixelifyPS-400.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/PixelifyPS-700.ttf" as="font" type="font/ttf" crossorigin>
-<!-- Datos estructurados para Google (tipo de página: videojuego gratuito) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -89,17 +83,15 @@
   ]
 }
 </script>
-<link rel="stylesheet" href="css/style.css?v=e10c4224d9">
-<script src="js/core/locales.js?v=71692c9d19"></script>
+<link rel="stylesheet" href="css/style.css?v=12bfcf3bf0">
+<script src="js/core/locales.js?v=55554b7156"></script>
 <script src="js/noframe.js"></script>
 </head>
 <body>
 
 <canvas id="game"></canvas>
-<!-- En móvil se juega en horizontal -->
 <div id="rotate" class="hidden"><div class="box center"><div id="rotate-ico"></div><h2>Gira el móvil</h2><p class="sub">PokéSurvivor se juega en horizontal.</p></div></div>
 
-<!-- ====== Inicio: login / registro / invitado ====== -->
 <section id="scr-login" class="scr hidden">
   <div class="box" style="width:min(420px,100%)">
     <div class="logo">
@@ -136,7 +128,6 @@
   </div>
 </section>
 
-<!-- ====== Test de personalidad ====== -->
 <section id="scr-test" class="scr dim hidden">
   <div class="box test-box">
     <div class="progress"><i id="test-bar"></i></div>
@@ -146,7 +137,6 @@
   </div>
 </section>
 
-<!-- ====== Resultado del test ====== -->
 <section id="scr-result" class="scr dim hidden">
   <div class="box result">
     <p class="sub">Tu personalidad es…</p>
@@ -161,7 +151,6 @@
   </div>
 </section>
 
-<!-- ====== Elegir compañero ====== -->
 <section id="scr-starters" class="scr dim hidden">
   <div class="box wide">
     <h2>Elige a tu compañero</h2>
@@ -175,8 +164,8 @@
   </div>
 </section>
 
-<!-- ====== Menú principal ====== -->
 <section id="scr-menu" class="scr hidden">
+    <div id="menu-banner" class="menu-banner hidden" role="button" tabindex="0" aria-label="Novedades importantes"></div>
   <div class="menu-left">
     <div class="logo">
       <div class="t1">PokéSurvivor<span class="splash">Folagor, Sekiam, PokeAlex: ¿un hueco?</span></div>
@@ -227,7 +216,6 @@
 <div id="sound-panel" class="box sound-panel hidden"></div>
 <div id="credits-line" class="credits-line hidden">Proyecto de fan sin ánimo de lucro · Sprites: SpriteCollab (CC BY-NC 4.0) · Pokémon © Nintendo/Creatures/GAME FREAK · <a href="#" class="legal-link" data-legal>Aviso legal</a></div>
 
-<!-- ====== Novedades (cambios del juego) ====== -->
 <section id="scr-news" class="scr dim hidden">
   <div class="box news-box">
     <div class="row between"><h2>Novedades</h2><button class="btn small ghost" id="news-close">Cerrar</button></div>
@@ -235,20 +223,17 @@
   </div>
 </section>
 
-<!-- ====== Vídeo nuevo del canal (js/ui/video-ui.js) ====== -->
 <section id="scr-video" class="scr dim hidden">
   <div class="box video-box">
     <h2>¡Vídeo nuevo en el canal!</h2>
     <div id="video-thumb" class="video-thumb"></div>
     <div class="row">
-      <button class="btn grow" id="video-play">Verlo aquí</button>
-      <button class="btn ghost grow" id="video-yt">Ver en YouTube</button>
+      <button class="btn grow" id="video-yt">Ver en YouTube</button>
       <button class="btn small ghost" id="video-close">Ahora no</button>
     </div>
   </div>
 </section>
 
-<!-- ====== Vincular Gmail para recuperar la cuenta (js/ui/login.js, offerRecovery) ====== -->
 <section id="scr-recover" class="scr dim hidden">
   <div class="box" style="width:min(440px,100%)">
     <h2>¿Te da miedo perder tu cuenta?</h2>
@@ -262,7 +247,6 @@
   </div>
 </section>
 
-<!-- ====== Avisos de una actualización (una vez por navegador, ver LoginUI.updateNotices) ====== -->
 <section id="scr-savenote" class="scr dim hidden">
   <div class="box" style="width:min(460px,100%)" translate="no">
     <h2 id="savenote-title"></h2>
@@ -271,7 +255,6 @@
   </div>
 </section>
 
-<!-- ====== Apoyar el proyecto (donaciones) ====== -->
 <section id="scr-support" class="scr dim hidden">
   <div class="box support">
     <div class="row between"><h2>Apoyar el proyecto</h2><button class="btn small ghost" id="sup-close">Cerrar</button></div>
@@ -279,7 +262,6 @@
   </div>
 </section>
 
-<!-- ====== Ajustes ====== -->
 <section id="scr-settings" class="scr dim hidden">
   <div class="box settings">
     <div class="row between"><h2>Ajustes</h2><button class="btn small ghost" id="set-close">Cerrar</button></div>
@@ -295,7 +277,6 @@
   </div>
 </section>
 
-<!-- ====== Aviso legal y privacidad ====== -->
 <section id="scr-legal" class="scr dim hidden">
   <div class="box legal" style="width:min(640px,100%)">
     <div class="row between"><h2>Aviso legal</h2><button class="btn small ghost" id="legal-close">Cerrar</button></div>
@@ -365,7 +346,6 @@
   </div>
 </noscript>
 
-<!-- ====== Apodo (para amigos y ranking) ====== -->
 <section id="scr-nick" class="scr dim hidden">
   <div class="box" style="width:min(440px,100%)">
     <h2>Elige tu apodo</h2>
@@ -380,7 +360,6 @@
   </div>
 </section>
 
-<!-- ====== Amigos ====== -->
 <section id="scr-friends" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Amigos</h2>
@@ -395,7 +374,6 @@
   </div>
 </section>
 
-<!-- ====== Sala (partida en grupo) ====== -->
 <section id="scr-lobby" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Sala</h2>
@@ -411,7 +389,6 @@
   </div>
 </section>
 
-<!-- ====== Ranking ====== -->
 <section id="scr-rank" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Ranking</h2><span class="row" style="gap:6px"><button id="rk-mod" class="btn small ghost hidden">Moderación</button><button class="btn small ghost" data-back>Volver</button></span></div>
@@ -430,7 +407,6 @@
   </div>
 </section>
 
-<!-- ====== Moderación del ranking (sólo la cuenta de admin, ver js/ui/mod-ui.js) ====== -->
 <section id="scr-mod" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Moderación</h2><span class="row" style="gap:6px"><button class="btn small danger" id="mod-purge">Quitar marcas de más de 1 hora</button><button class="btn small ghost" id="mod-back">Volver</button></span></div>
@@ -442,7 +418,6 @@
   </div>
 </section>
 
-<!-- ====== Misiones, logros y perfil ====== -->
 <section id="scr-goals" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Misiones</h2><button class="btn small ghost" data-back>Volver</button></div>
@@ -455,7 +430,6 @@
   </div>
 </section>
 
-<!-- ====== Perfil público de un jugador ====== -->
 <section id="scr-profile" class="scr dim hidden">
   <div class="box profile-box">
     <div class="row end"><button class="btn small ghost" id="prof-close">Cerrar</button></div>
@@ -463,7 +437,6 @@
   </div>
 </section>
 
-<!-- ====== Invitación recibida ====== -->
 <div id="invite-pop" class="box invite-pop hidden">
   <div id="inv-text"></div>
   <div class="row" style="margin-top:10px">
@@ -472,7 +445,6 @@
   </div>
 </div>
 
-<!-- ====== Colección ====== -->
 <section id="scr-dex" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Pokémon <span id="dex-total" class="sub" style="font-size:15px"></span></h2><button class="btn small ghost" data-back>Volver</button></div>
@@ -494,14 +466,10 @@
   </div>
 </section>
 
-<!-- ====== Tienda Kecleon (20-10-2026, del PR #236 de TheAdro7) ====== -->
 <section id="scr-shop" class="scr dim hidden">
   <div class="box wide shop-box">
-    <!-- El puesto: cae, se despliega el toldo, sube la persiana y salen los dos Kecleon (ver shop-ui.js). -->
-    <div class="shop-stall" id="shop-stall">
-      <!-- Todo el puesto (paisaje, toldo, estanterías, persiana, farolillos y los dos
-           Kecleon) se dibuja en pixel art en este lienzo: ver Scene en shop-ui.js. -->
-      <canvas id="shop-scene" class="shop-scene"></canvas>
+        <div class="shop-stall" id="shop-stall">
+            <canvas id="shop-scene" class="shop-scene"></canvas>
       <div class="shop-sign" id="shop-sign"><span>Tienda Kecleon</span></div>
       <div class="shop-bubble hide" id="shop-bubble"></div>
     </div>
@@ -516,7 +484,6 @@
   </div>
 </section>
 
-<!-- ====== Mochila (desde el menú principal, sin entrar en la tienda) ====== -->
 <section id="scr-bag" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Mochila</h2><button class="btn small ghost" data-back>Volver</button></div>
@@ -524,7 +491,6 @@
   </div>
 </section>
 
-<!-- ====== Mejoras ====== -->
 <section id="scr-upgrades" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Mejoras</h2><button class="btn small ghost" data-back>Volver</button></div>
@@ -542,7 +508,6 @@
   </div>
 </section>
 
-<!-- ====== Gacha ====== -->
 <section id="scr-gacha" class="scr dim hidden">
   <div class="box wide">
     <div class="row between"><h2>Gacha</h2><button class="btn small ghost" data-back>Volver</button></div>
@@ -576,7 +541,6 @@
   <button id="pull-close" class="btn gold hidden">Continuar</button>
 </div>
 
-<!-- ====== Durante la run ====== -->
 <section id="scr-levelup" class="scr dim hidden">
   <div class="box center">
     <h2>¡Nivel <span id="lvl-num">2</span>!</h2>
@@ -629,7 +593,6 @@
   </div>
 </section>
 
-<!-- datos generados -->
-<script defer src="js/app.min.js?v=59e2f8a67b"></script>
+<script defer src="js/app.min.js?v=7cc83e285f"></script>
 </body>
 </html>
