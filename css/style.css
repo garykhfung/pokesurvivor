@@ -1019,8 +1019,9 @@ a.btn { text-decoration: none; display: inline-block; color: var(--ink); }
 .mb-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(244,248,255,.35); cursor: pointer; }
 .mb-dots i.on { background: var(--gold); }
 @media (prefers-reduced-motion: reduce) { .mb-slide { transition: none; } .menu-banner { transition: none; } }
-/* Pantallas medianas o bajas: tapaba el título. Más pequeño, con la imagen a un lado. */
-@media (max-width: 1200px) and (min-width: 761px), (max-height: 860px) and (min-height: 521px) and (min-width: 761px) {
+/* Pantallas medianas o bajas: tapaba el título. Más pequeño, con la imagen a un lado.
+ * (También el móvil en horizontal, que luego lo coloca en su columna.) */
+@media (max-width: 1200px) and (min-width: 761px), (max-height: 860px) and (min-height: 521px) and (min-width: 761px), (max-height: 520px) {
   .menu-banner { top: 18px; left: 20px; width: clamp(220px, 22vw, 260px); padding: 6px; border-radius: 16px; }
   .mb-slide { flex-direction: row; align-items: center; gap: 8px; }
   .mb-img { flex: 0 0 76px; align-self: stretch; aspect-ratio: auto; min-height: 50px; border-radius: 10px; }
@@ -1042,7 +1043,25 @@ a.btn { text-decoration: none; display: inline-block; color: var(--ink); }
   .menu-banner { position: relative; top: auto; left: auto; flex: 0 0 auto; align-self: center; width: min(300px, calc(100% - 40px)); margin-top: 80px; }  /* (debajo de la barra de arriba, que aquí ocupa dos filas) */
   .menu-banner:not(.hidden) + .menu-left { padding-top: 18px; }
 }
-@media (max-height: 520px) { .menu-banner { display: none; } }
+/* Móvil en horizontal: arriba de la columna de la izquierda (la del título y el compañero),
+ * justo debajo de la barra de arriba. El título y el compañero bajan y se encogen un poco. */
+@media (max-height: 520px) {
+  .menu-banner { --mb-w: min(290px, calc(100% - min(54vw, 420px) - 16px));
+    top: 42px; left: calc((100% - min(54vw, 420px) - var(--mb-w)) / 2); width: var(--mb-w);
+    padding: 5px; border-radius: 14px; box-shadow: 0 6px 16px rgba(0, 0, 0, .45); }
+  .menu-banner:hover, .menu-banner:focus-visible { transform: none; }
+  .mb-img { flex-basis: 70px; min-height: 42px; border-radius: 9px; }
+  .mb-nav { left: 82px; }
+  .menu-banner:not(.hidden) + .menu-left { padding-top: 108px; }
+  .menu-banner:not(.hidden) + .menu-left .logo .t1 { font-size: 24px; }
+  .menu-banner:not(.hidden) + .menu-left #menu-partner { height: min(26vh, 104px); }
+}
+@media (max-height: 400px) {
+  .menu-banner { top: 38px; }
+  .menu-banner:not(.hidden) + .menu-left { padding-top: 100px; }
+  .menu-banner:not(.hidden) + .menu-left .logo .t2 { display: none; }
+  .menu-banner:not(.hidden) + .menu-left #menu-partner { height: min(24vh, 84px); }
+}
 /* Botón Guardar (barra de arriba). */
 .save-btn { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; }
 #savenote-body p { line-height: 1.4; }
