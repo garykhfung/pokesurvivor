@@ -26,13 +26,23 @@ self.addEventListener('fetch', e => {
     }));
     return;
   }
+  // La página del juego ("/" o "/index.html", con o sin ?...) se guarda también como
+  // ./index.html: el respaldo sin conexión es siempre la última que se abrió. Antes
+  // era la de cuando se instaló el service worker, que podía ser de una versión
+  // muy anterior.
+  const scope = new URL(self.registration.scope).pathname;
+  const game = req.mode === 'navigate' && (url.pathname === scope || url.pathname === scope + 'index.html');
   e.respondWith(fetch(req).then(res => {
-    if (res.ok) { const copy = res.clone(); caches.open(CODE).then(c => c.put(req, copy)); }
+    if (res.ok && !res.redirected) {
+      const copy = res.clone(), copy2 = game ? res.clone() : null;
+      caches.open(CODE).then(c => { c.put(req, copy); if (copy2) c.put('./index.html', copy2); });
+    }
     return res;
   }).catch(async () => {
     // Sin red: la copia guardada. La página de inicio sólo sirve de respaldo
     // al abrir la web (nunca en lugar de un script o una imagen).
-    const hit = await caches.match(req);
+    if (game) { const page = await caches.match('./index.html'); if (page) return page; }
+    const hit = await caches.match(req, { ignoreSearch: req.mode === 'navigate' });
     if (hit) return hit;
     if (req.mode === 'navigate') return (await caches.match('./index.html')) || Response.error();
     return Response.error();
